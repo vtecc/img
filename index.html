@@ -1,256 +1,533 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>维特图片压缩转WebP</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: system-ui, sans-serif;
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>图片压缩转WebP · 水印工具</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+
+    body {
+        background: #f3f4f6;
+        padding: 32px 16px;
+        max-width: 960px;
+        margin: 0 auto;
+        color: #1f2937;
+    }
+
+    .container {
+        background: #fff;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+        text-align: center;
+        font-size: 24px;
+        margin-bottom: 24px;
+    }
+
+    .upload-area {
+        border: 2px dashed #9ca3af;
+        border-radius: 12px;
+        padding: 48px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.25s;
+        background: #fafafa;
+    }
+
+    .upload-area:hover {
+        border-color: #3b82f6;
+        background: #f0f7ff;
+    }
+
+    .upload-area input {
+        display: none;
+    }
+
+    .section-title {
+        margin: 24px 0 12px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .control-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 14px;
+    }
+
+    .control-item {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    label {
+        font-size: 14px;
+        color: #4b5563;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+        padding: 8px 10px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 14px;
+        outline: none;
+        width: 100%;
+    }
+
+    input[type="range"] {
+        width: 100%;
+    }
+
+    .row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 18px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        background: #2563eb;
+        color: #fff;
+        font-size: 15px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn:hover {
+        background: #1d4ed8;
+    }
+
+    .btn:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+    }
+
+    .btn-secondary {
+        background: #64748b;
+    }
+
+    .btn-secondary:hover {
+        background: #475569;
+    }
+
+    .preview-wrap {
+        margin-top: 28px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .preview-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 16px;
+    }
+
+    .preview-card h3 {
+        font-size: 15px;
+        margin-bottom: 12px;
+        color: #4b5563;
+    }
+
+    .preview-img {
+        width: 100%;
+        max-height: 320px;
+        object-fit: contain;
+        border-radius: 8px;
+        background: #f9fafb;
+    }
+
+    .info-text {
+        margin-top: 10px;
+        font-size: 13px;
+        color: #6b7280;
+        line-height: 1.6;
+    }
+
+    .switch {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 4px;
+    }
+
+    .switch input {
+        width: 16px;
+        height: 16px;
+    }
+
+    @media (max-width: 640px) {
+        .preview-wrap {
+            grid-template-columns: 1fr;
         }
-        body {
-            background: #f3f4f6;
-            padding: 32px 16px;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        .container {
-            background: #fff;
-            border-radius: 16px;
-            padding: 32px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-        }
-        h1 {
-            text-align: center;
-            color: #1f2937;
-            margin-bottom: 24px;
-            font-size: 24px;
-        }
-        .upload-area {
-            border: 2px dashed #9ca3af;
-            border-radius: 12px;
-            padding: 48px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.25s;
-        }
-        .upload-area:hover {
-            border-color: #3b82f6;
-            background-color: #f0f7ff;
-        }
-        .upload-area input {
-            display: none;
-        }
-        .control-wrap {
-            margin-top: 24px;
-        }
-        .row {
-            display: flex;
-            gap:12px;
-            align-items:center;
-            margin-bottom:16px;
-            flex-wrap:wrap;
-        }
-        label {
-            font-weight:500;
-            color:#374151;
-        }
-        input[type="range"]{
-            flex:1;
-        }
-        .btn {
-            padding:10px 20px;
-            border:none;
-            border-radius:8px;
-            background:#2563eb;
-            color:white;
-            font-size:15px;
-            cursor:pointer;
-        }
-        .btn:disabled{
-            background:#94a3b8;
-            cursor:not-allowed;
-        }
-        .preview-wrap{
-            margin-top:28px;
-            display:grid;
-            grid-template-columns:1fr 1fr;
-            gap:20px;
-        }
-        .preview-card{
-            border:1px solid #e5e7eb;
-            border-radius:12px;
-            padding:16px;
-        }
-        .preview-card h3{
-            font-size:15px;
-            margin-bottom:12px;
-            color:#4b5563;
-        }
-        .preview-img{
-            max-width:100%;
-            max-height:320px;
-            object-fit:contain;
-        }
-        .info-text{
-            margin-top:10px;
-            font-size:13px;
-            color:#6b7280;
-        }
-        @media(max-width:640px){
-            .preview-wrap{
-                grid-template-columns:1fr;
-            }
-        }
-    </style>
+    }
+</style>
 </head>
+
 <body>
 <div class="container">
-    <h1>图片压缩 · 转为WebP</h1>
+    <h1>图片压缩转 WebP · 水印工具</h1>
 
     <div class="upload-area" id="uploadBox">
-        <p>点击或者拖拽图片到此处上传</p>
-        <input type="file" id="fileInput" accept="image/*">
+        <p>点击或拖拽图片到此处上传</p>
+        <input type="file" id="fileInput" accept="image/*" />
     </div>
 
-    <div class="control-wrap">
-        <div class="row">
+    <div class="section-title">压缩设置</div>
+
+    <div class="control-grid">
+        <div class="control-item">
             <label>压缩质量：<span id="qualityVal">0.7</span></label>
-            <input type="range" id="qualitySlider" min="0.1" max="1" step="0.05" value="0.7">
+            <input type="range" id="qualitySlider" min="0.1" max="1" step="0.05" value="0.7" />
         </div>
-        <div class="row">
-            <button class="btn" id="compressBtn" disabled>开始压缩并导出WebP</button>
-            <button class="btn" id="downloadBtn" disabled>下载WebP图片</button>
+    </div>
+
+    <div class="section-title">水印设置</div>
+
+    <div class="control-grid">
+        <div class="control-item">
+            <label>水印文字</label>
+            <input type="text" id="watermarkText" placeholder="例如：SAMPLE" value="SAMPLE" />
         </div>
+
+        <div class="control-item">
+            <label>字体大小：<span id="fontSizeVal">32</span> px</label>
+            <input type="range" id="fontSizeSlider" min="12" max="120" step="1" value="32" />
+        </div>
+
+        <div class="control-item">
+            <label>透明度：<span id="opacityVal">0.3</span></label>
+            <input type="range" id="opacitySlider" min="0.05" max="1" step="0.05" value="0.3" />
+        </div>
+
+        <div class="control-item">
+            <label>水印位置</label>
+            <select id="watermarkPosition">
+                <option value="tile">平铺重复</option>
+                <option value="center">居中</option>
+                <option value="leftTop">左上</option>
+                <option value="rightTop">右上</option>
+                <option value="leftBottom">左下</option>
+                <option value="rightBottom" selected>右下</option>
+            </select>
+        </div>
+
+        <div class="control-item">
+            <label>颜色</label>
+            <input type="color" id="watermarkColor" value="#ffffff" />
+        </div>
+
+        <div class="control-item">
+            <label>描边颜色</label>
+            <input type="color" id="strokeColor" value="#000000" />
+        </div>
+
+        <div class="control-item switch">
+            <input type="checkbox" id="enableWatermark" checked />
+            <label for="enableWatermark">启用水印</label>
+        </div>
+
+        <div class="control-item switch">
+            <input type="checkbox" id="enableStroke" checked />
+            <label for="enableStroke">启用文字描边</label>
+        </div>
+    </div>
+
+    <div class="row">
+        <button class="btn" id="compressBtn" disabled>开始压缩并导出 WebP</button>
+        <button class="btn btn-secondary" id="previewBtn" disabled>预览水印效果</button>
+        <button class="btn" id="downloadBtn" disabled>下载 WebP 图片</button>
     </div>
 
     <div class="preview-wrap">
         <div class="preview-card">
             <h3>原图</h3>
-            <img class="preview-img" id="originImg">
+            <img class="preview-img" id="originImg" />
             <div class="info-text" id="originInfo"></div>
         </div>
         <div class="preview-card">
-            <h3>压缩后 WebP</h3>
-            <img class="preview-img" id="compressedImg">
+            <h3>处理后预览</h3>
+            <img class="preview-img" id="compressedImg" />
             <div class="info-text" id="compressedInfo"></div>
         </div>
     </div>
 </div>
 
 <script>
-    const uploadBox = document.getElementById('uploadBox');
-    const fileInput = document.getElementById('fileInput');
-    const qualitySlider = document.getElementById('qualitySlider');
-    const qualityVal = document.getElementById('qualityVal');
-    const compressBtn = document.getElementById('compressBtn');
-    const downloadBtn = document.getElementById('downloadBtn');
-    const originImg = document.getElementById('originImg');
-    const compressedImg = document.getElementById('compressedImg');
-    const originInfo = document.getElementById('originInfo');
-    const compressedInfo = document.getElementById('compressedInfo');
+    const uploadBox = document.getElementById("uploadBox");
+    const fileInput = document.getElementById("fileInput");
+    const qualitySlider = document.getElementById("qualitySlider");
+    const qualityVal = document.getElementById("qualityVal");
+    const compressBtn = document.getElementById("compressBtn");
+    const previewBtn = document.getElementById("previewBtn");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const originImg = document.getElementById("originImg");
+    const compressedImg = document.getElementById("compressedImg");
+    const originInfo = document.getElementById("originInfo");
+    const compressedInfo = document.getElementById("compressedInfo");
+
+    const watermarkText = document.getElementById("watermarkText");
+    const fontSizeSlider = document.getElementById("fontSizeSlider");
+    const fontSizeVal = document.getElementById("fontSizeVal");
+    const opacitySlider = document.getElementById("opacitySlider");
+    const opacityVal = document.getElementById("opacityVal");
+    const watermarkPosition = document.getElementById("watermarkPosition");
+    const watermarkColor = document.getElementById("watermarkColor");
+    const strokeColor = document.getElementById("strokeColor");
+    const enableWatermark = document.getElementById("enableWatermark");
+    const enableStroke = document.getElementById("enableStroke");
 
     let originFile = null;
     let compressedBlob = null;
 
-    // 更新质量显示
-    qualitySlider.addEventListener('input', ()=>{
-        qualityVal.textContent = qualitySlider.value;
-    })
-
-    // 点击上传
-    uploadBox.addEventListener('click', ()=>fileInput.click());
-
-    //拖拽上传
-    uploadBox.addEventListener('dragover',e=>{
-        e.preventDefault();
-        uploadBox.style.borderColor="#2563eb";
-    })
-    uploadBox.addEventListener('dragleave',()=>{
-        uploadBox.style.borderColor="#9ca3af";
-    })
-    uploadBox.addEventListener('drop',e=>{
-        e.preventDefault();
-        uploadBox.style.borderColor="#9ca3af";
-        if(e.dataTransfer.files.length){
-            handleFile(e.dataTransfer.files[0])
-        }
-    })
-
-    fileInput.addEventListener('change',()=>{
-        if(fileInput.files[0]) handleFile(fileInput.files[0]);
-    })
-
-    function formatSize(bytes){
-        if(!bytes) return '';
-        if(bytes <1024) return bytes+' B';
-        if(bytes <1024*1024) return (bytes/1024).toFixed(2)+' KB';
-        return (bytes/(1024*1024)).toFixed(2)+' MB';
+    // ========== 工具函数 ==========
+    function formatSize(bytes) {
+        if (!bytes) return "";
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + " KB";
+        return (bytes / (1024 * 1024)).toFixed(2) + " MB";
     }
 
-    function handleFile(file){
-        if(!file.type.startsWith('image/')){
+    function hexToRgba(hex, alpha) {
+        const h = hex.replace("#", "");
+        const full = h.length === 3
+            ? h.split("").map((c) => c + c).join("")
+            : h;
+        const num = parseInt(full, 16);
+        const r = (num >> 16) & 255;
+        const g = (num >> 8) & 255;
+        const b = num & 255;
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    // ========== 事件绑定 ==========
+    qualitySlider.addEventListener("input", () => {
+        qualityVal.textContent = qualitySlider.value;
+    });
+
+    fontSizeSlider.addEventListener("input", () => {
+        fontSizeVal.textContent = fontSizeSlider.value;
+    });
+
+    opacitySlider.addEventListener("input", () => {
+        opacityVal.textContent = opacitySlider.value;
+    });
+
+    uploadBox.addEventListener("click", () => fileInput.click());
+
+    uploadBox.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        uploadBox.style.borderColor = "#2563eb";
+    });
+
+    uploadBox.addEventListener("dragleave", () => {
+        uploadBox.style.borderColor = "#9ca3af";
+    });
+
+    uploadBox.addEventListener("drop", (e) => {
+        e.preventDefault();
+        uploadBox.style.borderColor = "#9ca3af";
+        if (e.dataTransfer.files.length) {
+            handleFile(e.dataTransfer.files[0]);
+        }
+    });
+
+    fileInput.addEventListener("change", () => {
+        if (fileInput.files[0]) {
+            handleFile(fileInput.files[0]);
+        }
+    });
+
+    function handleFile(file) {
+        if (!file.type.startsWith("image/")) {
             alert("请选择图片文件");
             return;
         }
+
         originFile = file;
         compressedBlob = null;
-        downloadBtn.disabled=true;
+        downloadBtn.disabled = true;
 
         const reader = new FileReader();
-        reader.onload = e=>{
+        reader.onload = (e) => {
             originImg.src = e.target.result;
-            originInfo.innerText = `文件:${file.name} | 大小:${formatSize(file.size)}`;
+            originInfo.textContent = `文件：${file.name}  大小：${formatSize(file.size)}`;
             compressBtn.disabled = false;
-            compressedImg.src = '';
-            compressedInfo.innerText = '';
-        }
+            previewBtn.disabled = false;
+            compressedImg.src = "";
+            compressedInfo.textContent = "";
+        };
         reader.readAsDataURL(file);
     }
 
-    //压缩转webp
-    compressBtn.addEventListener('click',async ()=>{
-        if(!originFile) return;
-        compressBtn.disabled=true;
-        compressBtn.innerText="处理中...";
+    // ========== 绘制水印 ==========
+    function drawWatermark(ctx, width, height) {
+        if (!enableWatermark.checked) return;
+
+        const text = watermarkText.value.trim() || "SAMPLE";
+        const fontSize = parseInt(fontSizeSlider.value, 10);
+        const opacity = parseFloat(opacitySlider.value);
+        const position = watermarkPosition.value;
+        const color = hexToRgba(watermarkColor.value, opacity);
+        const stroke = hexToRgba(strokeColor.value, opacity);
+
+        ctx.save();
+        ctx.font = `bold ${fontSize}px system-ui, sans-serif`;
+        ctx.fillStyle = color;
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "center";
+
+        if (enableStroke.checked) {
+            ctx.lineWidth = Math.max(2, Math.round(fontSize / 10));
+            ctx.strokeStyle = stroke;
+        }
+
+        const drawText = (x, y) => {
+            if (enableStroke.checked) {
+                ctx.strokeText(text, x, y);
+            }
+            ctx.fillText(text, x, y);
+        };
+
+        if (position === "tile") {
+            const stepX = fontSize * 6;
+            const stepY = fontSize * 4;
+            ctx.translate(width / 2, height / 2);
+            ctx.rotate(-Math.PI / 10);
+
+            for (let y = -height; y < height; y += stepY) {
+                for (let x = -width; x < width; x += stepX) {
+                    drawText(x, y);
+                }
+            }
+        } else {
+            let x = width / 2;
+            let y = height / 2;
+            const padding = fontSize;
+
+            if (position === "leftTop") {
+                ctx.textAlign = "left";
+                ctx.textBaseline = "top";
+                x = padding;
+                y = padding;
+            } else if (position === "rightTop") {
+                ctx.textAlign = "right";
+                ctx.textBaseline = "top";
+                x = width - padding;
+                y = padding;
+            } else if (position === "leftBottom") {
+                ctx.textAlign = "left";
+                ctx.textBaseline = "bottom";
+                x = padding;
+                y = height - padding;
+            } else if (position === "rightBottom") {
+                ctx.textAlign = "right";
+                ctx.textBaseline = "bottom";
+                x = width - padding;
+                y = height - padding;
+            }
+
+            drawText(x, y);
+        }
+
+        ctx.restore();
+    }
+
+    // ========== 图片处理 ==========
+    async function processImage() {
+        if (!originFile) return null;
 
         const img = new Image();
         img.src = URL.createObjectURL(originFile);
-        await new Promise(resolve=>img.onload=resolve);
+        await new Promise((resolve) => (img.onload = resolve));
 
-        const canvas = document.createElement('canvas');
+        const canvas = document.createElement("canvas");
         canvas.width = img.width;
         canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img,0,0);
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
 
-        //输出webp blob
-        const quality = Number(qualitySlider.value);
-        canvas.toBlob((blob)=>{
+        drawWatermark(ctx, canvas.width, canvas.height);
+
+        const quality = parseFloat(qualitySlider.value);
+
+        return new Promise((resolve) => {
+            canvas.toBlob(
+                (blob) => resolve(blob),
+                "image/webp",
+                quality
+            );
+        });
+    }
+
+    // ========== 预览水印 ==========
+    previewBtn.addEventListener("click", async () => {
+        previewBtn.disabled = true;
+        previewBtn.textContent = "处理中...";
+
+        const blob = await processImage();
+        if (blob) {
             compressedBlob = blob;
             compressedImg.src = URL.createObjectURL(blob);
-            compressedInfo.innerText = `格式:WebP | 大小:${formatSize(blob.size)}`;
+            compressedInfo.textContent =
+                `预览水印效果  格式：WebP  估算大小：${formatSize(blob.size)}`;
             downloadBtn.disabled = false;
-            compressBtn.disabled = false;
-            compressBtn.innerText="开始压缩并导出WebP";
-        },'image/webp',quality);
-    })
+        }
 
-    //下载
-    downloadBtn.addEventListener('click',()=>{
-        if(!compressedBlob) return;
-        const a = document.createElement('a');
+        previewBtn.disabled = false;
+        previewBtn.textContent = "预览水印效果";
+    });
+
+    // ========== 压缩并导出 WebP ==========
+    compressBtn.addEventListener("click", async () => {
+        compressBtn.disabled = true;
+        compressBtn.textContent = "处理中...";
+
+        const blob = await processImage();
+        if (blob) {
+            compressedBlob = blob;
+            compressedImg.src = URL.createObjectURL(blob);
+            compressedInfo.textContent =
+                `格式：WebP  大小：${formatSize(blob.size)}`;
+            downloadBtn.disabled = false;
+        }
+
+        compressBtn.disabled = false;
+        compressBtn.textContent = "开始压缩并导出 WebP";
+    });
+
+    // ========== 下载 ==========
+    downloadBtn.addEventListener("click", () => {
+        if (!compressedBlob) return;
+
+        const a = document.createElement("a");
         const url = URL.createObjectURL(compressedBlob);
         a.href = url;
-        //修改后缀为webp
-        const baseName = originFile.name.replace(/\.[^.]+$/,'');
-        a.download = baseName+'.webp';
+
+        const baseName = originFile.name.replace(/\.[^.]+$/, "");
+        a.download = baseName + ".webp";
         a.click();
+
         URL.revokeObjectURL(url);
-    })
+    });
 </script>
 </body>
 </html>
+
